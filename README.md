@@ -1,14 +1,16 @@
 # PID Biased High-Speed Line Following Robot
 
-> Arduino Nano + TB6612FNG + 8-Channel IR + 74HC4051 + SSD1306 OLED
+> Arduino Nano + TB6612FNG + **Pololu QTR-8A 8-channel analog sensor** + 74HC4051 + SSD1306 OLED
 
 A high-speed, smooth and tunable PID line-following robot focused on fast response, stable steering, dynamic speed control and practical tuning.
 
 ## Project Status
 
-Current stage: Hardware + firmware foundation (V1).
+Current stage: Hardware + firmware foundation (V1), standardized around the Pololu QTR-8A.
 
-The firmware currently assumes an 8-channel analog IR sensor array. If the actual sensor module uses digital, serial or another interface, the sensor driver must be adapted.
+The reference sensor for this project is now the **Pololu QTR-8A Reflectance Sensor Array (8-channel analog), product #960**. It provides eight independent analog outputs and is specifically intended for line/reflectance sensing. Pololu specifies 3.3–5 V operation, 9.525 mm sensor pitch, and about 3 mm optimal sensing distance. citeturn0search0turn0search1
+
+The QTR-8A output is lower over strong reflectance/white and higher over weak reflectance/black, so the firmware uses `BLACK_IS_HIGH = true`. citeturn0search0
 
 ## Design Goals
 
@@ -23,7 +25,7 @@ The firmware currently assumes an 8-channel analog IR sensor array. If the actua
 
 ## System Architecture
 
-8-channel IR sensor array -> 74HC4051 -> Arduino Nano -> PID -> TB6612FNG -> Left/Right N20 motors
+**Pololu QTR-8A** -> 74HC4051 -> Arduino Nano -> PID -> TB6612FNG -> Left/Right N20 motors
 
 Arduino Nano also handles OLED telemetry and push buttons.
 
@@ -34,7 +36,7 @@ Arduino Nano also handles OLED telemetry and push buttons.
 | Arduino Nano | 1 | Main controller |
 | TB6612FNG | 1 | Dual motor driver |
 | 6V 600RPM N20 motor | 2 | Drive |
-| 8-channel analog IR sensor | 1 | Line detection |
+| **Pololu QTR-8A** | 1 | **Reference 8-channel analog line sensor** |
 | 74HC4051 | 1 | Analog multiplexer |
 | SSD1306 I2C OLED | 1 | Telemetry |
 | Push buttons | 3 | Start / calibration / speed |
@@ -224,9 +226,19 @@ docs/WIRING.md
 
 docs/TUNING.md
 
+## Reference Sensor
+
+**Pololu QTR-8A Reflectance Sensor Array, product #960.**
+
+This is the sensor used as the reference design for the firmware and wiring in this repository. Its eight independent analog outputs are well suited to normalized weighted-position PID control. citeturn0search0turn0search1
+
+The 74HC4051 is retained because the Nano A4/A5 pins are reserved for the SSD1306 I2C OLED. The QTR-8A's eight analog outputs therefore connect to X0-X7 of the 4051, with SIG/Z going to Nano A0.
+
+Official reference: urlPololu QTR-8Ahttps://www.pololu.com/product/960
+
 ## Roadmap
 
-- [ ] Confirm exact IR sensor module
+- [x] Select reference 8-channel analog sensor: Pololu QTR-8A
 - [ ] Optimize sensor sampling for the actual board
 - [ ] Improve sensor noise filtering
 - [ ] Adaptive PID
@@ -246,6 +258,6 @@ docs/TUNING.md
 
 PID Biased High-Speed Line Following Robot
 
-Built around Arduino Nano + TB6612FNG + 8CH IR + 74HC4051 + SSD1306.
+Built around Arduino Nano + TB6612FNG + Pololu QTR-8A + 74HC4051 + SSD1306.
 
 High speed. Smooth control. Precise tracking.
